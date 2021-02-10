@@ -46,7 +46,8 @@ def create_app(test_config=None):
 
   @app.route('/categories')
   def get_categories():
-    categories_format = {category.id: category.type for category in Category.query.order_by(Category.id).all()}
+    categories_format = {category.id: category.type for category in 
+      Category.query.order_by(Category.id).all()}
     
   
 
@@ -76,7 +77,8 @@ def create_app(test_config=None):
     page = request.args.get('page', 1, type=int)
     start = (page-1) * 10
     end = start + 10
-    categories_format = {category.id: category.type for category in Category.query.order_by(Category.id).all()}
+    categories_format = {category.id: category.type 
+      for category in Category.query.order_by(Category.id).all()}
    
 
     if len(questions_format) == 0:
@@ -120,7 +122,7 @@ def create_app(test_config=None):
         return jsonify({
           'success': True,
           'deleted': question_id
-        })
+        }),200
 
 
 #   TEST: When you click the trash icon next to a question, the question will be removed.
@@ -135,13 +137,12 @@ def create_app(test_config=None):
 
   @app.route('/add', methods=['POST'])
   def add_question():
-    new_question = request.get_json()
     try:
-
-      question = new_question['question']
-      answer = new_question['answer']
-      difficulty = new_question['difficulty']
-      category = new_question['category']
+      new_question = request.get_json()
+      question = new_question.get('question')
+      answer = new_question.get('answer')
+      difficulty = new_question.get('difficulty')
+      category = new_question.get('category')
       
       
       add_question = Question(question, answer,
@@ -179,9 +180,9 @@ def create_app(test_config=None):
     end = start + 10
 
     try:
-      search_term = request.get_json.get('search_term', '')
+      search_term = request.get_json.get('searchTerm', '')
       question_found = Question.query.filter(Question.question.ilike(
-        '%{}%'.format(search_term))).all()
+        f'%{search_term}%')).all()
       questions_format = [question.format() for question in question_found]
 
       
