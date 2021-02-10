@@ -51,7 +51,7 @@ def create_app(test_config=None):
   
 
     if len(categories_format) == 0:
-      abort(404)
+     abort(404)
 
     
 
@@ -133,9 +133,8 @@ def create_app(test_config=None):
 #   which will require the question and answer text, 
 #   category, and difficulty score.
 
-  @app.route('/questions', methods=['POST'])
+  @app.route('/add', methods=['POST'])
   def add_question():
-    error = False
     new_question = request.get_json()
     try:
 
@@ -145,20 +144,18 @@ def create_app(test_config=None):
       category = new_question['category']
       
       
-      add_question = Question(question=question, answer=answer,
-        difficulty=difficulty, category=category)
-      Question.insert(add_question)
+      add_question = Question(question, answer,
+        difficulty, category)
+      add_question.insert()
 
-    except Exception as e:
-      error = True
-      print(e)
-      if error:
-        abort(500)
-      else:
-        return jsonify({
+      return jsonify({
           'success': True,
-          'question': add_question
+          'question': add_question.format()
         })
+
+    except:
+      abort(422)
+  
 
 
 
@@ -172,6 +169,35 @@ def create_app(test_config=None):
 #   Create a POST endpoint to get questions based on a search term. 
 #   It should return any questions for whom the search term 
 #   is a substring of the question. 
+
+
+  @app.route('/questions/search', methods = ['POST'])
+  def search_question():
+
+    page = request.args.get('page', 1, type=int)
+    start = (page-1) * 10
+    end = start + 10
+
+    try:
+      search_term = request.get_json.get('search_term', '')
+      question_found = Question.query.filter(Question.question.ilike(
+        '%{}%'.format(search_term))).all()
+      questions_format = [question.format() for question in question_found]
+
+      
+
+      return jsonify({
+        'success': True,
+        'questions': questions_format[start:end],
+        'total_questions': len(question_found)
+      })
+    except:
+      abort(422)
+
+
+
+
+
 
 #   TEST: Search by any phrase. The questions list will update to include 
 #   only question that include that string within their question. 
@@ -209,10 +235,10 @@ def create_app(test_config=None):
 
   @app.errorhandler(404)
   def not_found(error):
-        return jsonify({
-            "success": False,
-            "error": 404,
-            "message": "Sorry not found"
+      return jsonify({
+          "success": False,
+          "error": 404,
+          "message": "Sorry not found"
         }), 404
 
   @app.errorhandler(422)
