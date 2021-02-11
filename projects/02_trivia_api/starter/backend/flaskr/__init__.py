@@ -88,6 +88,7 @@ def create_app(test_config=None):
       'success': True,
       'questions': questions_format[start:end],
       'categories': categories_format,
+      'current_category': None,
       "total_questions": len(Question.query.all())
       })
 
@@ -137,22 +138,27 @@ def create_app(test_config=None):
 
   @app.route('/add', methods=['POST'])
   def add_question():
+    new_question = request.get_json()
+
+    question = new_question.get('question')
+    answer = new_question.get('answer')
+    difficulty = new_question.get('difficulty')
+    category = new_question.get('category')
+      
+    if ((question is None) or (answer is None) or (difficulty is None) or (category is None)):
+      abort(422)
+    
+
     try:
-      new_question = request.get_json()
-      question = new_question.get('question')
-      answer = new_question.get('answer')
-      difficulty = new_question.get('difficulty')
-      category = new_question.get('category')
-      
-      
-      add_question = Question(question, answer,
-        difficulty, category)
+
+      add_question = Question(question = question, answer = answer,
+        difficulty = difficulty, category = category)
       add_question.insert()
 
       return jsonify({
-          'success': True,
-          'question': add_question.format()
-        })
+        'success': True,
+        'question': add_question.format()
+      })
 
     except:
       abort(422)
@@ -180,7 +186,7 @@ def create_app(test_config=None):
     end = start + 10
 
     try:
-      search_term = request.get_json.get('searchTerm', '')
+      search_term = request.json.get('searchTerm', '')
       question_found = Question.query.filter(Question.question.ilike(
         f'%{search_term}%')).all()
       questions_format = [question.format() for question in question_found]
@@ -209,6 +215,35 @@ def create_app(test_config=None):
 #   @TODO: 
 #   Create a GET endpoint to get questions based on category. 
 
+
+
+  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+  def get_cat_question(category_id):
+    questions = Question.query.filter_by(category=str(category_id)).all()
+    questions_format = [question.format() for question in questions]
+
+    page = request.args.get('page', 1, type=int)
+    start = (page-1) * 10
+    end = start + 10
+
+    if len(questions_format) == 0:
+      abort(404)
+
+
+    return jsonify({
+      'success': True,
+      'questions': questions_format[start:end],
+      "total_questions": len(Question.query.all())
+      })
+
+    
+
+
+
+
+
+
+
 #   TEST: In the "List" tab / main screen, clicking on one of the 
 #   categories in the left column will cause only questions of that 
 #   category to be shown. 
@@ -221,6 +256,45 @@ def create_app(test_config=None):
 #   This endpoint should take category and previous question parameters 
 #   and return a random questions within the given category, 
 #   if provided, and that is not one of the previous questions. 
+
+
+  app.route('/quizzes', methods = ['POST'])
+  def play_quiz():
+    previous_questions = request.get_json().get('previous_questions',[])
+    quiz_category = request.get_json().get('quiz_category', None)
+
+    try:
+      if quiz_category:
+        if quiz_category['id'] == 0:
+          quiz = Question.query.all()
+
+        else:
+          quiz = Question.query.filter_by(category = quiz_category['id']).all()
+        
+      if not quiz:
+        return abort(422)
+
+      data = []
+
+      for question in quiz:
+        if question.id not in previous_questions:
+          data.append(question.format())
+        
+      if len(data) != 0:
+        result = random.choice(data)
+        return jsonify({
+          'question': result
+        })
+      else:
+        return jsonify({
+          'question': False
+        })
+    
+    except:
+      abort(404)
+
+
+
 
 #   TEST: In the "Play" tab, after a user selects "All" or a category,
 #   one question at a time is displayed, the user is allowed to answer
