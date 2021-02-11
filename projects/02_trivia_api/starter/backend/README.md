@@ -87,6 +87,36 @@ GET '/categories'
 '5' : "Entertainment",
 '6' : "Sports"}
 
+GET '/questions'
+- Fetches a dictionary of all questions in ascending order of the questions ID. All questions are formated the same (using question.format()) for consistency
+- Returns: a list of the following:
+{
+   'id': question.id,
+   'question': the question 
+   'answer': the answer,
+   'category': the category it belongs in,
+   'difficulty': question difficulty
+    }
+    
+    
+    
+DELETE '/questions/<int:question_id>'
+- This endpoint will delete a chosen question. When clicking on the trash button this will send a delete command with the given ID for that question as reference
+- Request Argument: Question ID
+- Returns: 
+        {
+          'success': True
+          'deleted': the question id
+        }
+
+
+POST '/add'
+- Allows the user to create and add new questions to the website. Once the question is submitted it will be added onto the end of the list on the final page
+- Request Argument: an entry for question, answer, difficulty and category is needed
+- Returns: the new question, answer, difficulty and category
+
+
+
 ```
 
 
