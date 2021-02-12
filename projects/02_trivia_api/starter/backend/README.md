@@ -136,6 +136,8 @@ GET '/quizzes'
 - Returns: The answer of the question and whether the user got the question right or wrong. Then at the end it will display the users score
 
 
+
+
 ```
 
 
