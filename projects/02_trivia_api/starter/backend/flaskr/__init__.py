@@ -4,20 +4,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_paginate import Pagination, get_page_args
 import random
+import traceback 
 
 from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
-
-# def pagination(request, selection):
-#   page = request.args.get('page',1,type=int)
-#   start = (page - 1) * QUESTIONS_PER_PAGE
-#   end = start + QUESTIONS_PER_PAGE
-
-#   questions = [question.format() for question in selection]
-#   questions_current = questions[start:end]
-#   return questions_current
-
 
 
 def create_app(test_config=None):
@@ -44,7 +35,7 @@ def create_app(test_config=None):
   # for all available categories.
   # '''
 
-  @app.route('/categories')
+  @app.route('/categories', methods = ['GET'])
   def get_categories():
     categories_format = {category.id: category.type for category in 
       Category.query.order_by(Category.id).all()}
@@ -70,7 +61,7 @@ def create_app(test_config=None):
 #   This endpoint should return a list of questions, 
 #   number of total questions, current category, categories. 
 
-  @app.route('/questions')
+  @app.route('/questions', methods=['GET'])
   def get_questions():
     questions = Question.query.order_by(Question.id).all()
     questions_format = [question.format() for question in questions]
@@ -111,19 +102,17 @@ def create_app(test_config=None):
     if question is None:
       abort(404)
     
-
     try:
       question.delete()
-    except Exception as e:
-      print(e)
+  
+    except:
       abort(422)
-
 
     else:
         return jsonify({
           'success': True,
           'deleted': question_id
-        }),200
+        })
 
 
 #   TEST: When you click the trash icon next to a question, the question will be removed.
@@ -145,15 +134,16 @@ def create_app(test_config=None):
     difficulty = new_question.get('difficulty')
     category = new_question.get('category')
       
-    if ((question is None) or (answer is None) or (difficulty is None) or (category is None)):
-      abort(422)
     
 
     try:
+      if ((question is None) or (answer is None) or (difficulty is None) or (category is None)): 
+        abort(422)
 
-      add_question = Question(question = question, answer = answer,
-        difficulty = difficulty, category = category)
-      add_question.insert()
+      else:
+        add_question = Question(question = question, answer = answer,
+          difficulty = difficulty, category = category)
+        add_question.insert()
 
       return jsonify({
         'success': True,
@@ -258,7 +248,7 @@ def create_app(test_config=None):
 #   if provided, and that is not one of the previous questions. 
 
 
-  app.route('/quizzes', methods = ['POST'])
+  @app.route('/quizzes', methods = ['POST'])
   def play_quiz():
     previous_questions = request.get_json().get('previous_questions',[])
     quiz_category = request.get_json().get('quiz_category', None)
@@ -269,7 +259,8 @@ def create_app(test_config=None):
           quiz = Question.query.all()
 
         else:
-          quiz = Question.query.filter_by(category = quiz_category['id']).all()
+          quiz = Question.query.filter_by(category = 
+            quiz_category['id']).all()
         
       if not quiz:
         return abort(422)
@@ -292,6 +283,7 @@ def create_app(test_config=None):
     
     except:
       abort(404)
+
 
 
 

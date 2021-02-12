@@ -36,28 +36,28 @@ class TriviaTestCase(unittest.TestCase):
     """
 
 
-    def test_delete_question(self):
-        res = self.client().delete('/questions/8')
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data['success'], True)
-        self.assertTrue(data['deleted'], 8)
-
-
-
-    # def test_add_question(self):
-    #     res = self.client().post('/add')
+    # def test_delete_question(self):
+    #     res = self.client().delete('/questions/8')
     #     data = json.loads(res.data)
 
     #     self.assertEqual(res.status_code, 200)
     #     self.assertEqual(data['success'], True)
-    #     self.assertTrue(data['id'])
-    #     self.assertEqual(data['question'], 
-    #         'Which football team is the most succesful?')
-    #     self.assertEqual(data['answer'], 'Middlesbrough FC')
-    #     self.assertEqual(data['difficulty'], '2')
-    #     self.assertEqual(data['category'], '6')
+    #     self.assertTrue(data['deleted'], 8)
+
+
+
+    def test_add_question(self):
+        res = self.client().post('/add')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['id'])
+        self.assertEqual(data['question'], 
+            'Which football team is the most succesful?')
+        self.assertEqual(data['answer'], 'Middlesbrough FC')
+        self.assertEqual(data['difficulty'], '2')
+        self.assertEqual(data['category'], '6')
 
 
 # Make the tests conveniently executable
