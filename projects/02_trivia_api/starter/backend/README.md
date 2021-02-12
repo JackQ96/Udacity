@@ -76,6 +76,7 @@ GET ...
 POST ...
 DELETE ...
 
+
 GET '/categories'
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
@@ -87,8 +88,10 @@ GET '/categories'
 '5' : "Entertainment",
 '6' : "Sports"}
 
+
 GET '/questions'
 - Fetches a dictionary of all questions in ascending order of the questions ID. All questions are formated the same (using question.format()) for consistency
+-Request Arguments: None
 - Returns: a list of the following:
 {
    'id': question.id,
@@ -97,7 +100,6 @@ GET '/questions'
    'category': the category it belongs in,
    'difficulty': question difficulty
     }
-    
     
     
 DELETE '/questions/<int:question_id>'
@@ -115,6 +117,23 @@ POST '/add'
 - Request Argument: an entry for question, answer, difficulty and category is needed
 - Returns: the new question, answer, difficulty and category
 
+
+POST '/questions/search'
+- A search function that allows the user to type out either a whole question or part of a question and it will return all questions that have the search term inside of them
+- Request Arguments: a search term of the questions you want to find
+- Returns: A full list of formatted questions that have the search term inside of them. If you type out a full question then it will return just that question by itself.
+
+
+GET '/categories/<int:category_id>/questions'
+- Fetches a dictionary of only the questions that are WITHIN a chosen category allowing the user to choose the type of questions they want to receive
+- Request Arguments: category ID
+- Returns: A list of formatted questions that are linked to the category chosen
+
+
+GET '/quizzes'
+- Allows the user to play a game. The user can click on a specific category or 'ALL' if they would like a random mixture. After clicking on the category they want, random questions will pop up and immedidately tell the user if they are right or wrong after submitting their answer. After 5 questions the quiz will end and display the users final score
+- Request Arguments: The category ID is initially needed to form the questions for the quiz and then once the quiz starts an answer is needed to be submitted for each question
+- Returns: The answer of the question and whether the user got the question right or wrong. Then at the end it will display the users score
 
 
 ```
