@@ -258,7 +258,7 @@ def create_app(test_config=None):
 #   if provided, and that is not one of the previous questions. 
 
 
-  app.route('/quizzes', methods = ['POST'])
+  @app.route('/quizzes', methods = ['POST'])
   def play_quiz():
     previous_questions = request.get_json().get('previous_questions',[])
     quiz_category = request.get_json().get('quiz_category', None)
