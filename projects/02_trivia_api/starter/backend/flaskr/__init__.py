@@ -40,13 +40,6 @@ def create_app(test_config=None):
     categories_format = {category.id: category.type for category in 
       Category.query.order_by(Category.id).all()}
     
-  
-
-    if len(categories_format) == 0:
-     abort(404)
-
-    
-
     return jsonify({
       'success': True,
       'categories': categories_format
@@ -65,14 +58,16 @@ def create_app(test_config=None):
   def get_questions():
     questions = Question.query.order_by(Question.id).all()
     questions_format = [question.format() for question in questions]
-    page = request.args.get('page', 1, type=int)
-    start = (page-1) * 10
-    end = start + 10
     categories_format = {category.id: category.type 
       for category in Category.query.order_by(Category.id).all()}
    
+    page = request.args.get('page', 1, type=int)
+    start = (page-1) * 10
+    end = start + 10
 
-    if len(questions_format) == 0:
+    current_questions = questions_format[start:end]
+
+    if len(current_questions) == 0:
       abort(404)
 
     return jsonify({
@@ -176,20 +171,24 @@ def create_app(test_config=None):
     end = start + 10
 
     try:
-      search_term = request.json.get('searchTerm', '')
+      search_term = request.json.get('searchTerm', None)
       question_found = Question.query.filter(Question.question.ilike(
         f'%{search_term}%')).all()
       questions_format = [question.format() for question in question_found]
+      current_questions = questions_format[start:end]
+
+      if len(current_questions) ==0:
+        abort(404)
 
       
 
       return jsonify({
         'success': True,
-        'questions': questions_format[start:end],
+        'questions': current_questions,
         'total_questions': len(question_found)
       })
     except:
-      abort(422)
+      abort(404)
 
 
 
@@ -253,6 +252,10 @@ def create_app(test_config=None):
     previous_questions = request.get_json().get('previous_questions',[])
     quiz_category = request.get_json().get('quiz_category', None)
 
+
+    if quiz_category is None: 
+      abort(422)
+
     try:
       if quiz_category:
         if quiz_category['id'] == 0:
@@ -262,8 +265,8 @@ def create_app(test_config=None):
           quiz = Question.query.filter_by(category = 
             quiz_category['id']).all()
         
-      if not quiz:
-        return abort(422)
+      if quiz is None:
+        abort(422)
 
       data = []
 
@@ -274,6 +277,7 @@ def create_app(test_config=None):
       if len(data) != 0:
         result = random.choice(data)
         return jsonify({
+          'success': True,
           'question': result
         })
       else:
