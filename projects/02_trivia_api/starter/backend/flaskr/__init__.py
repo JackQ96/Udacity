@@ -10,6 +10,15 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+def paginate(request, selection):
+  selected_page = request.args.get('page', 1, type=int)
+  start = (selected_page-1)*QUESTIONS_PER_PAGE
+  end = start + QUESTIONS_PER_PAGE
+  
+  questions = [question.format() for question in selection]
+  current_questions = questions[start:end]
+
+  return current_questions
 
 def create_app(test_config=None):
   # create and configure the app
@@ -56,23 +65,19 @@ def create_app(test_config=None):
 
   @app.route('/questions', methods=['GET'])
   def get_questions():
-    questions = Question.query.order_by(Question.id).all()
-    questions_format = [question.format() for question in questions]
+    questions_all = Question.query.order_by(Question.id).all()
+    current_questions = paginate(request, questions_all)
     categories_format = {category.id: category.type 
       for category in Category.query.order_by(Category.id).all()}
    
-    page = request.args.get('page', 1, type=int)
-    start = (page-1) * 10
-    end = start + 10
 
-    current_questions = questions_format[start:end]
 
     if len(current_questions) == 0:
       abort(404)
 
     return jsonify({
       'success': True,
-      'questions': questions_format[start:end],
+      'questions': current_questions,
       'categories': categories_format,
       'current_category': None,
       "total_questions": len(Question.query.all())
@@ -100,7 +105,8 @@ def create_app(test_config=None):
     try:
       question.delete()
   
-    except:
+    except Exception as e:
+      print(e)
       abort(422)
 
     else:
@@ -145,7 +151,8 @@ def create_app(test_config=None):
         'question': add_question.format()
       })
 
-    except:
+    except Exception as e:
+      print(e)
       abort(422)
   
 
@@ -187,7 +194,8 @@ def create_app(test_config=None):
         'questions': current_questions,
         'total_questions': len(question_found)
       })
-    except:
+    except Exception as e:
+      print(e)
       abort(404)
 
 
@@ -211,17 +219,16 @@ def create_app(test_config=None):
     questions = Question.query.filter_by(category=str(category_id)).all()
     questions_format = [question.format() for question in questions]
 
-    page = request.args.get('page', 1, type=int)
-    start = (page-1) * 10
-    end = start + 10
 
     if len(questions_format) == 0:
       abort(404)
 
+    chosen_questions = paginate(request, questions)
+
 
     return jsonify({
       'success': True,
-      'questions': questions_format[start:end],
+      'questions': chosen_questions,
       "total_questions": len(Question.query.all())
       })
 
@@ -285,7 +292,8 @@ def create_app(test_config=None):
           'question': False
         })
     
-    except:
+    except Exception as e:
+      print(e)
       abort(404)
 
 
