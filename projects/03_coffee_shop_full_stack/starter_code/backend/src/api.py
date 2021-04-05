@@ -124,7 +124,6 @@ def alter_drinks(payload, id):
     drink = Drink.query.get(id)
 
     try:
-
         if drink is None:
             abort(404)
         

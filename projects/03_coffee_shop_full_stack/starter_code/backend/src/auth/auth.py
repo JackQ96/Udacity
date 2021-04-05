@@ -7,7 +7,7 @@ from urllib.request import urlopen
 
 AUTH0_DOMAIN = 'jackq.eu.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'https:localhost:5000'
+API_AUDIENCE = 'http:localhost:5000'
 
 ## AuthError Exception
 '''
@@ -31,7 +31,19 @@ class AuthError(Exception):
     return the token part of the header
 '''
 def get_token_auth_header():
-   raise Exception('Not Implemented')
+    try:
+        auth = request.headers.get('Authorization', None)
+        if not auth:
+            raise AuthError({
+                'code': 'authorization_header_missing',
+                'description': 'Authorization header is expected.'
+                }, 401)
+    except:
+        raise Exception('Not Implemented')
+
+
+
+  
 
 '''
 @TODO implement check_permissions(permission, payload) method
@@ -45,7 +57,10 @@ def get_token_auth_header():
     return true otherwise
 '''
 def check_permissions(permission, payload):
-    raise Exception('Not Implemented')
+    if 'permissions' not in payload:
+        raise AuthError
+    
+
 
 '''
 @TODO implement verify_decode_jwt(token) method
