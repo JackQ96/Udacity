@@ -211,14 +211,6 @@ def notfound(error):
     error handler should conform to general task above 
 '''
 
-@app.errorhandler(401)
-def unauthorized(error):
-    return jsonify({
-                    "success": False, 
-                    "error": 401,
-                    "message": "Unauthorized attempt"
-                    }), 401
-
 
 @app.errorhandler(400)
 def badrequest(error):
@@ -227,3 +219,11 @@ def badrequest(error):
                     "error": 400,
                     "message": "Bad Request"
                     }), 400
+
+@app.errorhandler(AuthError)
+def unauthorized(error):
+    return jsonify({
+                    "success": False, 
+                    "error": 401,
+                    "message": "Bad Request"
+                    }), 401

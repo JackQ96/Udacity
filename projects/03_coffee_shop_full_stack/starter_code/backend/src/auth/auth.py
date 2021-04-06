@@ -41,11 +41,14 @@ def get_token_auth_header():
                 }, 401)
         
         if auth:
-            bearer_token = auth.split('')
+            bearer_token = auth.split()
             if bearer_token[0] and bearer_token[0].lower() == 'bearer' and bearer_token[1]:
                 return bearer_token[1]
     except:
-        raise Exception('Not Implemented')
+        raise AuthError({
+            'success': False,
+            'description': 'Unable to find token'
+    }, 400)
 
 
 
