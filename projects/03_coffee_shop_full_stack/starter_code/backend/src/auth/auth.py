@@ -42,8 +42,28 @@ def get_token_auth_header():
         
         if auth:
             bearer_token = auth.split()
-            if bearer_token[0] and bearer_token[0].lower() == 'bearer' and bearer_token[1]:
-                return bearer_token[1]
+            if bearer_token[0].lower() != "bearer":
+                raise AuthError({
+                    'success': False,
+                    'description': 'Bearer token not found'
+            }, 404)
+
+            elif len(bearer_token) == 1:
+                raise AuthError({
+                    'success': False,
+                    'description': 'Bearer token not found'
+            }, 404)
+
+            elif len(bearer_token)>2:
+                raise AuthError({
+                    'success': False,
+                    'description': 'Bearer token not found'
+            }, 404)
+
+            token = bearer_token[1]
+            return token
+        
+
     except:
         raise AuthError({
             'success': False,
